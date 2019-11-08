@@ -299,8 +299,7 @@ public class PageRankSpider extends Spider {
      * @param page An <code>HTMLPage</code> that contains the page to index.
      */
     protected void indexPage(HTMLPage page) {
-        // Define the page number as it will be stored in the directory of
-        // indexed documents
+        // Define the page number of this document
         String pageNumber = "P" + MoreString.padWithZeros(count, (int) Math.floor(MoreMath.log(maxCount, 10)) + 1);
 
         // Get the Node associated with the current page
