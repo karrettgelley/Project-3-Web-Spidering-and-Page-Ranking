@@ -293,8 +293,8 @@ public class PageRankSpider extends Spider {
     }
 
     /**
-     * "Indexes" a <code>HTMLpage</code>. This version just writes it out to a file
-     * in the specified directory with a "P<count>.html" file name.
+     * fuck "Indexes" a <code>HTMLpage</code>. This version just writes it out to a
+     * file in the specified directory with a "P<count>.html" file name.
      *
      * @param page An <code>HTMLPage</code> that contains the page to index.
      */
