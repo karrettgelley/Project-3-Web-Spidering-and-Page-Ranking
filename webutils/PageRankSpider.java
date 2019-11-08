@@ -1,6 +1,8 @@
 package ir.webutils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.io.*;
 
 import ir.utilities.*;
@@ -69,6 +71,9 @@ public class PageRankSpider extends Spider {
     public void go(String[] args) {
         processArgs(args);
         doCrawl();
+
+        // Removes extraneous nodes from the crawl graph
+        cleanCrawlGraph();
 
         // Does PageRank on the crawl graph
         doPageRank();
@@ -293,8 +298,8 @@ public class PageRankSpider extends Spider {
     }
 
     /**
-     * fuck "Indexes" a <code>HTMLpage</code>. This version just writes it out to a
-     * file in the specified directory with a "P<count>.html" file name.
+     * "Indexes" a <code>HTMLpage</code>. This version just writes it out to a file
+     * in the specified directory with a "P<count>.html" file name.
      *
      * @param page An <code>HTMLPage</code> that contains the page to index.
      */
@@ -318,6 +323,38 @@ public class PageRankSpider extends Spider {
 
     protected void doPageRank() {
 
+    }
+
+    /**
+     * Removes extraneous nodes from the crawl graph. During doCrawl() a Graph is
+     * constructed, and it represents the crawl. However, if you look at
+     * getNewLinks() you will notice that there could be extra nodes in the crawl
+     * Graph (i.e. nodes for documents that didn't get indexed). cleanCrawlGraph()
+     * removes such nodes.
+     */
+    protected void cleanCrawlGraph() {
+        // Create an iterator for the Graph
+        crawlGraph.resetIterator();
+
+        // Define the regex which will be used to identify nodes whose document was
+        // indexed
+        String regex = "(P)(\\d+)";
+        Pattern pattern = Pattern.compile(regex);
+
+        // Iterate over the Graph, removing nodes which were not indexed
+        Node node = crawlGraph.nextNode();
+        while (node != null) {
+            // Nodes that were not indexed do not have names of the form Pxxx.html
+            Matcher matcher = pattern.matcher(node.name);
+            if (!matcher.matches()) {
+                crawlGraph.iterator.remove();
+            }
+
+            node = crawlGraph.nextNode();
+        }
+
+        // Reset iterator for future use
+        crawlGraph.resetIterator();
     }
 
     /**
