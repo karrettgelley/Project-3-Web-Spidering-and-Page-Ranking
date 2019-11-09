@@ -44,46 +44,25 @@ public class PageRankSpider extends Spider {
     }
 
     /**
-     * Returns a list of links to follow from a given page. Subclasses can use this
-     * method to direct the spider's path over the web by returning a subset of the
-     * links on the page. Also helps construct the crawl graph by adding edges to
-     * the Node(s) associated with the outlinks of the current page.
-     * 
-     * @param page The current page.
-     * @return Links to be visited from this page
-     */
-    protected List<Link> getNewLinks(HTMLPage page) {
-        // Get the outlinks from the current page
-        List<Link> outLinks = new LinkExtractor(page).extractLinks();
-
-        // Get the Node associated with the current page being indexed
-        Node currentPageNode = crawlGraph.getNode(page.link.getURL().toString());
-
-        // Add an edge to every Node associated with an outlink
-        // of the current page Node
-        for (Link outLink : outLinks) {
-            Node outNode = crawlGraph.getNode(outLink.getURL().toString());
-            currentPageNode.addEdge(outNode);
-        }
-
-        return outLinks;
-    }
-
-    /**
      * "Indexes" a <code>HTMLpage</code>. This version just writes it out to a file
      * in the specified directory with a "P<count>.html" file name.
      *
      * @param page An <code>HTMLPage</code> that contains the page to index.
      */
+
     protected void indexPage(HTMLPage page) {
         // Define the page number of this document
         String pageNumber = "P" + MoreString.padWithZeros(count, (int) Math.floor(MoreMath.log(maxCount, 10)) + 1);
 
         // Get the Node associated with the current page
         Node node = crawlGraph.getNode(page.link.getURL().toString());
-
         node.pageNumber = pageNumber;
         node.isIndexed = true;
+
+        for (Link link : new LinkExtractor(page).extractLinks()) {
+            node.addEdge(crawlGraph.getNode(link.getURL().toString()));
+        }
+
         page.write(saveDir, pageNumber);
     }
 
@@ -122,23 +101,17 @@ public class PageRankSpider extends Spider {
             }
         }
 
-        double shit = 0.0;
         try {
             // Write PageRank to page_ranks.txt file
             PrintWriter out = new PrintWriter(new FileWriter("page_ranks.txt"));
             for (Map.Entry<String, Double> entry : newRank.entrySet()) {
                 out.println(entry.getKey() + " " + String.valueOf(entry.getValue()));
-                shit += entry.getValue();
             }
             out.close();
         } catch (IOException e) {
             System.out.println(e);
             System.exit(0);
         }
-
-        System.out.println("Graph Structure");
-        crawlGraph.print();
-        System.out.println(shit);
     }
 
     /**
@@ -222,18 +195,21 @@ public class PageRankSpider extends Spider {
                 cleanedNode.pageNumber = node.pageNumber;
                 cleanedNode.isIndexed = true;
 
-                // Add only edges from indexed nodes
+                // Copy out edges from indexed nodes
                 for (Node n : node.edgesOut) {
-                    if (n.isIndexed) {
+                    if (n.isIndexed && !cleanedNode.edgesOut.contains(cleanedGraph.getNode(n.name))) {
                         cleanedNode.addEdge(cleanedGraph.getNode(n.name));
                     }
                 }
 
-                for (Node n : node.edgesIn) {
-                    if (n.isIndexed) {
-                        cleanedNode.addEdgeFrom(cleanedGraph.getNode(n.name));
-                    }
-                }
+                // // Copy in edges from indexed nodes
+                // for (Node n : node.edgesIn) {
+                // if (n.isIndexed) {
+                // cleanedNode.addEdgeFrom(cleanedGraph.getNode(n.name));
+                // }
+                // }
+            } else {
+                crawlGraph.iterator.remove();
             }
 
             node = crawlGraph.nextNode();
