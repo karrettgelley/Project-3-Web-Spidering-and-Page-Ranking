@@ -134,8 +134,8 @@ public class PageRankSpider extends Spider {
             System.exit(0);
         }
 
-        // System.out.println("Graph Structure");
-        // crawlGraph.print();
+        System.out.println("Graph Structure");
+        crawlGraph.print();
     }
 
     /**
@@ -223,6 +223,12 @@ public class PageRankSpider extends Spider {
                 for (Node n : node.edgesOut) {
                     if (n.isIndexed) {
                         cleanedNode.addEdge(cleanedGraph.getNode(n.name));
+                    }
+                }
+
+                for (Node n : node.edgesIn) {
+                    if (n.isIndexed) {
+                        cleanedNode.addEdgeFrom(cleanedGraph.getNode(n.name));
                     }
                 }
             }
