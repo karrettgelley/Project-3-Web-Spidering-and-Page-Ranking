@@ -38,6 +38,8 @@ public class PageRankSpider extends Spider {
 
         // Removes extraneous nodes from the crawl graph
         crawlGraph = cleanCrawlGraph();
+        System.out.println("Graph Structure");
+        crawlGraph.print();
 
         // Does PageRank on the crawl graph
         doPageRank();
@@ -101,10 +103,20 @@ public class PageRankSpider extends Spider {
             }
         }
 
+        writePageRank(newRank);
+    }
+
+    /**
+     * Writes the result of the PageRank algorithm to a file page_ranks.txt in
+     * saveDir
+     * 
+     * @param rank
+     */
+    protected void writePageRank(HashMap<String, Double> rank) {
         try {
             // Write PageRank to page_ranks.txt file
-            PrintWriter out = new PrintWriter(new FileWriter("page_ranks.txt"));
-            for (Map.Entry<String, Double> entry : newRank.entrySet()) {
+            PrintWriter out = new PrintWriter(new FileWriter(new File(saveDir, "page_ranks.txt")));
+            for (Map.Entry<String, Double> entry : rank.entrySet()) {
                 out.println(entry.getKey() + " " + String.valueOf(entry.getValue()));
             }
             out.close();
