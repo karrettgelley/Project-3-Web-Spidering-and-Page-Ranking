@@ -108,7 +108,7 @@ public class PageRankSpider extends Spider {
             Node node = crawlGraph.nextNode();
             while (node != null) {
                 // Compute the PageRank for the current iteration and store it
-                newRank.put(node.name, getNewPageRank(node, rank, alpha, rankSource));
+                newRank.put(node.pageNumber, getNewPageRank(node, rank, alpha, rankSource));
 
                 node = crawlGraph.nextNode();
             }
@@ -122,11 +122,13 @@ public class PageRankSpider extends Spider {
             }
         }
 
+        double shit = 0.0;
         try {
             // Write PageRank to page_ranks.txt file
             PrintWriter out = new PrintWriter(new FileWriter("page_ranks.txt"));
             for (Map.Entry<String, Double> entry : newRank.entrySet()) {
                 out.println(entry.getKey() + " " + String.valueOf(entry.getValue()));
+                shit += entry.getValue();
             }
             out.close();
         } catch (IOException e) {
@@ -136,6 +138,7 @@ public class PageRankSpider extends Spider {
 
         System.out.println("Graph Structure");
         crawlGraph.print();
+        System.out.println(shit);
     }
 
     /**
@@ -152,8 +155,8 @@ public class PageRankSpider extends Spider {
         Node n = crawlGraph.nextNode();
         while (n != null) {
             // Initialize the PageRank to 1/|S| where S is the set of indexed docuemnts
-            rank.put(n.name, 1.0 / count);
-            newRank.put(n.name, 1.0 / count);
+            rank.put(n.pageNumber, 1.0 / count);
+            newRank.put(n.pageNumber, 1.0 / count);
             n = crawlGraph.nextNode();
         }
     }
@@ -197,7 +200,7 @@ public class PageRankSpider extends Spider {
         // Calculate ΣR(p)/N_p where p is a node incidient to node, N is the number of
         // outlinks from p, and R(p) is the PageRank of p
         for (Node n : incomingNodes) {
-            sumPageRank += rank.get(n.name) / (n.getEdgesOut().size());
+            sumPageRank += rank.get(n.pageNumber) / (n.getEdgesOut().size());
         }
 
         double newPageRank = ((1 - alpha) * sumPageRank) + rankSource;
