@@ -37,7 +37,7 @@ public class PageRankSpider extends Spider {
         doCrawl();
 
         // Removes extraneous nodes from the crawl graph
-        cleanCrawlGraph();
+        crawlGraph = cleanCrawlGraph();
 
         // Does PageRank on the crawl graph
         doPageRank();
@@ -134,8 +134,8 @@ public class PageRankSpider extends Spider {
             System.exit(0);
         }
 
-        System.out.println("Graph Structure");
-        crawlGraph.print();
+        // System.out.println("Graph Structure");
+        // crawlGraph.print();
     }
 
     /**
@@ -205,35 +205,32 @@ public class PageRankSpider extends Spider {
     }
 
     /**
-     * Removes extraneous nodes from the crawl graph. During doCrawl() a Graph is
-     * constructed, and it represents the crawl. However, if you look at
-     * getNewLinks() you will notice that there could be extra nodes in the crawl
-     * Graph (i.e. nodes for documents that didn't get indexed). cleanCrawlGraph()
-     * removes such nodes.
+     * Creates a new Graph which only contains indexed Node(s).
      */
-    protected void cleanCrawlGraph() {
-        // Create an iterator for the Graph
+    protected Graph cleanCrawlGraph() {
+        Graph cleanedGraph = new Graph();
+
         crawlGraph.resetIterator();
-
-        // Define the regex which will be used to identify nodes whose document was
-        // indexed
-        String regex = "(P)(\\d+)";
-        Pattern pattern = Pattern.compile(regex);
-
-        // Iterate over the Graph, removing nodes which were not indexed
         Node node = crawlGraph.nextNode();
         while (node != null) {
-            // Nodes that were not indexed do not have names of the form Pxxx.html
-            Matcher matcher = pattern.matcher(node.name);
-            if (!node.isIndexed) {
-                crawlGraph.iterator.remove();
+            if (node.isIndexed) {
+                // Get the node with matching name from new Graph
+                Node cleanedNode = cleanedGraph.getNode(node.name);
+                cleanedNode.pageNumber = node.pageNumber;
+                cleanedNode.isIndexed = true;
+
+                // Add only edges from indexed nodes
+                for (Node n : node.edgesOut) {
+                    if (n.isIndexed) {
+                        cleanedNode.addEdge(cleanedGraph.getNode(n.name));
+                    }
+                }
             }
 
             node = crawlGraph.nextNode();
         }
 
-        // Reset iterator for future use
-        crawlGraph.resetIterator();
+        return cleanedGraph;
     }
 
     /**
