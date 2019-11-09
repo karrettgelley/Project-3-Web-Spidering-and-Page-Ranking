@@ -16,6 +16,8 @@ public class Node {
    * Name of the node.
    */
   String name;
+  String pageNumber;
+  boolean isIndexed;
 
   /**
    * Lists of incoming and outgoing edges.
@@ -28,6 +30,8 @@ public class Node {
    */
   public Node(String name) {
     this.name = name;
+    this.pageNumber = "";
+    this.isIndexed = false;
   }
 
   /**

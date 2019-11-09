@@ -82,14 +82,8 @@ public class PageRankSpider extends Spider {
         // Get the Node associated with the current page
         Node node = crawlGraph.getNode(page.link.getURL().toString());
 
-        /**
-         * Change the name of the current page node so that at the end of the crawl we
-         * can tell which Nodes have been indexed and which have not: A Node which has a
-         * name like "P100.html" has been indexed and will be used for PageRank, while
-         * all other Nodes will be named according to the link that was used to download
-         * the document associated with that Node.
-         */
-        node.name = pageNumber;
+        node.pageNumber = pageNumber;
+        node.isIndexed = true;
         page.write(saveDir, pageNumber);
     }
 
@@ -139,6 +133,9 @@ public class PageRankSpider extends Spider {
             System.out.println(e);
             System.exit(0);
         }
+
+        System.out.println("Graph Structure");
+        crawlGraph.print();
     }
 
     /**
@@ -228,7 +225,7 @@ public class PageRankSpider extends Spider {
         while (node != null) {
             // Nodes that were not indexed do not have names of the form Pxxx.html
             Matcher matcher = pattern.matcher(node.name);
-            if (!matcher.matches()) {
+            if (!node.isIndexed) {
                 crawlGraph.iterator.remove();
             }
 
