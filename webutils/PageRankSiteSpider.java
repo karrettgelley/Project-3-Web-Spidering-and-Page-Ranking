@@ -42,7 +42,8 @@ public class PageRankSiteSpider extends PageRankSpider {
 
     /**
      * Spider the web according to the following command options, but stay within
-     * the given site (same URL host).
+     * 
+
      * <ul>
      * <li>-safe : Check for and obey robots.txt and robots META tag
      * directives.</li>

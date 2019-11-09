@@ -132,7 +132,6 @@ public class PageRankSpider extends Spider {
             // Write PageRank to page_ranks.txt file
             PrintWriter out = new PrintWriter(new FileWriter("page_ranks.txt"));
             for (Map.Entry<String, Double> entry : newRank.entrySet()) {
-                System.out.println(entry.getKey() + " " + entry.getValue());
                 out.println(entry.getKey() + " " + String.valueOf(entry.getValue()));
             }
             out.close();
