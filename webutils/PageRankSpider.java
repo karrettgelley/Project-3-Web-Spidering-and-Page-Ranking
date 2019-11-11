@@ -61,7 +61,10 @@ public class PageRankSpider extends Spider {
         node.isIndexed = true;
 
         for (Link link : new LinkExtractor(page).extractLinks()) {
-            node.addEdge(crawlGraph.getNode(link.getURL().toString()));
+            String linkName = link.getURL().toString();
+            if (!linkName.equals(node.name)) {
+                node.addEdge(crawlGraph.getNode(linkName));
+            }
         }
 
         page.write(saveDir, pageNumber);
