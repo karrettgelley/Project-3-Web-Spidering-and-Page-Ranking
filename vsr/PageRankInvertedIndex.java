@@ -16,7 +16,15 @@ import ir.classifiers.*;
  */
 public class PageRankInvertedIndex extends InvertedIndex {
 
+    /**
+     * A scaling parameter for PageRank
+     */
     double weight;
+
+    /**
+     * A datastructure that maps document names to their PageRank score
+     */
+    HashMap<String, Double> pageRank;
 
     /**
      * Create an inverted index of the documents in a directory.
@@ -26,10 +34,13 @@ public class PageRankInvertedIndex extends InvertedIndex {
      *                 DocumentIterator)
      * @param stem     Whether tokens should be stemmed with Porter stemmer.
      * @param feedback Whether relevance feedback should be used.
+     * @param weight   a scaling parameter for PageRank
      */
     public PageRankInvertedIndex(File dirFile, short docType, boolean stem, boolean feedback, double weight) {
         super(dirFile, docType, stem, feedback);
         this.weight = weight;
+        this.pageRank = new HashMap<String, Double>();
+        getPageRanks();
     }
 
     /**
@@ -41,6 +52,42 @@ public class PageRankInvertedIndex extends InvertedIndex {
      */
     public PageRankInvertedIndex(List<Example> examples) {
         super(examples);
+    }
+
+    /**
+     * Reads the values from page_ranks.txt into the pageRank HashMap.
+     */
+    private void getPageRanks() {
+        File[] files;
+
+        // Get the page_ranks.txt file from the indexed directory
+        FilenameFilter filenameFilter = new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.equals("page_ranks.txt")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+
+        files = dirFile.listFiles(filenameFilter);
+
+        // Read the input from page_ranks.txt to be stored in the map
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(files[0]));
+            String st;
+
+            while ((st = br.readLine()) != null) {
+                String[] sts = st.split(" ");
+                pageRank.put(sts[0], Double.valueOf(sts[1]));
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(0);
+        }
     }
 
     /**
@@ -482,8 +529,6 @@ public class PageRankInvertedIndex extends InvertedIndex {
             }
         }
 
-        System.out.println(weight);
-        System.exit(0);
         // Create an inverted index for the files in the given directory.
         PageRankInvertedIndex index = new PageRankInvertedIndex(new File(dirName), docType, stem, feedback, weight);
         // index.print();
