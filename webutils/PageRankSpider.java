@@ -61,6 +61,7 @@ public class PageRankSpider extends Spider {
         node.isIndexed = true;
 
         for (Link link : new LinkExtractor(page).extractLinks()) {
+            // Add edge if page does not link to istelf
             String linkName = link.getURL().toString();
             if (!linkName.equals(node.name)) {
                 node.addEdge(crawlGraph.getNode(linkName));
@@ -214,6 +215,7 @@ public class PageRankSpider extends Spider {
     protected Graph cleanCrawlGraph() {
         Graph cleanedGraph = new Graph();
 
+        // Build a new graph
         crawlGraph.resetIterator();
         Node node = crawlGraph.nextNode();
         while (node != null) {
@@ -223,20 +225,13 @@ public class PageRankSpider extends Spider {
                 cleanedNode.pageNumber = node.pageNumber;
                 cleanedNode.isIndexed = true;
 
-                // Copy out edges from indexed nodes
+                // Copy edges from indexed nodes and remove duplicate edges
                 for (Node n : node.edgesOut) {
                     if (n.isIndexed
                             && !cleanedNode.edgesOut.contains(cleanedGraph.getNode(n.name))) {
                         cleanedNode.addEdge(cleanedGraph.getNode(n.name));
                     }
                 }
-
-                // // Copy in edges from indexed nodes
-                // for (Node n : node.edgesIn) {
-                // if (n.isIndexed) {
-                // cleanedNode.addEdgeFrom(cleanedGraph.getNode(n.name));
-                // }
-                // }
             } else {
                 crawlGraph.iterator.remove();
             }
