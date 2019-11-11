@@ -8,11 +8,10 @@ import ir.utilities.*;
 import ir.classifiers.*;
 
 /**
- * An inverted index for vector-space information retrieval. Contains methods for creating an
- * inverted index from a set of documents and retrieving ranked matches to queries using standard
- * TF/IDF weighting and cosine similarity.
- *
- * @author Ray Mooney
+ * An inverted index that extends the functionality of InvertedIndex for vector-space information
+ * retrieval. Uses PageRank in order to rank retrieved documents.
+ * 
+ * @author Garrett Kelley
  */
 public class PageRankInvertedIndex extends InvertedIndex {
 
