@@ -58,7 +58,7 @@ public class PageRankInvertedIndex extends InvertedIndex {
      */
     private void getPageRanks() {
         // Get the page_ranks.txt file from the indexed directory
-        File file = new File(dirFile.toString(), "page_ranks.txt");
+        File file = new File("page_ranks.txt");
 
         // Read the input from page_ranks.txt to be stored in the map
         try {
@@ -129,12 +129,31 @@ public class PageRankInvertedIndex extends InvertedIndex {
             }
         }
 
+        // Remove page_ranks.txt from indexed directory so page_ranks.txt does not
+        // skew term weighting
+        File file = new File(dirName, "page_ranks.txt");
+        if (file.renameTo(new File(dirName, "../page_ranks.txt"))) {
+            file.delete();
+        } else {
+            System.out.println("Failed to move page_ranks.txt out of indexed directory.");
+            System.exit(0);
+        }
+
         // Create an inverted index for the files in the given directory.
         PageRankInvertedIndex index =
                 new PageRankInvertedIndex(new File(dirName), docType, stem, feedback, weight);
         // index.print();
         // Interactively process queries to this index.
         index.processQueries();
+
+        // Move page_ranks.txt back to indexed directory
+        file = new File("page_ranks.txt");
+        if (file.renameTo(new File(dirName, "page_ranks.txt"))) {
+            file.delete();
+        } else {
+            System.out.println("Failed to move page_ranks.txt back in indexed directory.");
+            System.exit(0);
+        }
     }
 
 }
