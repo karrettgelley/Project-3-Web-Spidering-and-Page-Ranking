@@ -58,7 +58,7 @@ public class PageRankSpider extends Spider {
 
         // Get the Node associated with the current page
         Node node = crawlGraph.getNode(page.link.getURL().toString());
-        node.pageNumber = pageNumber;
+        node.pageNumber = pageNumber + ".html";
         node.isIndexed = true;
 
         for (Link link : new LinkExtractor(page).extractLinks()) {
