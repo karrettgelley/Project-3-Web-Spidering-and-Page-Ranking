@@ -8,12 +8,10 @@ import java.io.*;
 import ir.utilities.*;
 
 /**
- * Spider defines a framework for writing a web crawler. Users can change the
- * behavior of the spider by overriding methods. Default spider does a breadth
- * first crawl starting from a given URL up to a specified maximum number of
- * pages, saving (caching) the pages in a given directory. Also adds a "BASE"
- * HTML command to cached pages so links can be followed from the cached
- * version.
+ * Spider defines a framework for writing a web crawler. Users can change the behavior of the spider
+ * by overriding methods. Default spider does a breadth first crawl starting from a given URL up to
+ * a specified maximum number of pages, saving (caching) the pages in a given directory. Also adds a
+ * "BASE" HTML command to cached pages so links can be followed from the cached version.
  *
  * @author Ted Wild and Ray Mooney
  */
@@ -46,15 +44,16 @@ public class PageRankSpider extends Spider {
     }
 
     /**
-     * "Indexes" a <code>HTMLpage</code>. This version just writes it out to a file
-     * in the specified directory with a "P<count>.html" file name.
+     * "Indexes" a <code>HTMLpage</code>. This version just writes it out to a file in the specified
+     * directory with a "P<count>.html" file name.
      *
      * @param page An <code>HTMLPage</code> that contains the page to index.
      */
 
     protected void indexPage(HTMLPage page) {
         // Define the page number of this document
-        String pageNumber = "P" + MoreString.padWithZeros(count, (int) Math.floor(MoreMath.log(maxCount, 10)) + 1);
+        String pageNumber = "P"
+                + MoreString.padWithZeros(count, (int) Math.floor(MoreMath.log(maxCount, 10)) + 1);
 
         // Get the Node associated with the current page
         Node node = crawlGraph.getNode(page.link.getURL().toString());
@@ -69,8 +68,8 @@ public class PageRankSpider extends Spider {
     }
 
     /**
-     * Computes the PageRank of all of the indexed documents and stores the values
-     * in page_ranks.txt. The entries in the text file are of the form: P1.html 0.0
+     * Computes the PageRank of all of the indexed documents and stores the values in
+     * page_ranks.txt. The entries in the text file are of the form: P1.html 0.0
      */
     protected void doPageRank() {
         // Define PageRank hyperparameters
@@ -104,13 +103,27 @@ public class PageRankSpider extends Spider {
         }
 
         writePageRank(newRank);
+        printPageRank(newRank);
+    }
+
+
+    /**
+     * Prints the result of the PageRank algorithm to the console
+     * 
+     * @param rank a map from document names to PageRanks
+     */
+    protected void printPageRank(HashMap<String, Double> rank) {
+        System.out.println("\nPage Rank:");
+
+        for (Node n : crawlGraph.nodeArray()) {
+            System.out.println("PR(" + n.name + "):" + rank.get(n.pageNumber));
+        }
     }
 
     /**
-     * Writes the result of the PageRank algorithm to a file page_ranks.txt in
-     * saveDir
+     * Writes the result of the PageRank algorithm to a file page_ranks.txt in saveDir
      * 
-     * @param rank
+     * @param rank a map from document names to PageRanks
      */
     protected void writePageRank(HashMap<String, Double> rank) {
         try {
@@ -129,12 +142,11 @@ public class PageRankSpider extends Spider {
     /**
      * Initializes the PageRank of the indexed documents.
      * 
-     * @param rank    A HashMap that maps the name of a document (i.e. P001.html) to
-     *                its PageRank
-     * @param newRank A subsidiary HashMap similar to rank to aid in testing
-     *                PageRank convergence
+     * @param rank    A HashMap that maps the name of a document (i.e. P001.html) to its PageRank
+     * @param newRank A subsidiary HashMap similar to rank to aid in testing PageRank convergence
      */
-    protected void initializePageRank(HashMap<String, Double> rank, HashMap<String, Double> newRank) {
+    protected void initializePageRank(HashMap<String, Double> rank,
+            HashMap<String, Double> newRank) {
         // Iterate every indexed document
         crawlGraph.resetIterator();
         Node n = crawlGraph.nextNode();
@@ -176,7 +188,8 @@ public class PageRankSpider extends Spider {
      * @param rank a HashMap that maps a node to its PageRank
      * @return the sum of the PageRanks of the nodes incident to node
      */
-    protected double getNewPageRank(Node node, HashMap<String, Double> rank, double alpha, double rankSource) {
+    protected double getNewPageRank(Node node, HashMap<String, Double> rank, double alpha,
+            double rankSource) {
         double sumPageRank = 0.0;
 
         // Get the list of nodes that are incident to node
@@ -209,7 +222,8 @@ public class PageRankSpider extends Spider {
 
                 // Copy out edges from indexed nodes
                 for (Node n : node.edgesOut) {
-                    if (n.isIndexed && !cleanedNode.edgesOut.contains(cleanedGraph.getNode(n.name))) {
+                    if (n.isIndexed
+                            && !cleanedNode.edgesOut.contains(cleanedGraph.getNode(n.name))) {
                         cleanedNode.addEdge(cleanedGraph.getNode(n.name));
                     }
                 }
@@ -233,14 +247,11 @@ public class PageRankSpider extends Spider {
     /**
      * Spider the web according to the following command options:
      * <ul>
-     * <li>-safe : Check for and obey robots.txt and robots META tag
-     * directives.</li>
+     * <li>-safe : Check for and obey robots.txt and robots META tag directives.</li>
      * <li>-d &lt;directory&gt; : Store indexed files in &lt;directory&gt;.</li>
-     * <li>-c &lt;maxCount&gt; : Store at most &lt;maxCount&gt; files (default is
-     * 10,000).</li>
+     * <li>-c &lt;maxCount&gt; : Store at most &lt;maxCount&gt; files (default is 10,000).</li>
      * <li>-u &lt;url&gt; : Start at &lt;url&gt;.</li>
-     * <li>-slow : Pause briefly before getting a page. This can be useful when
-     * debugging.
+     * <li>-slow : Pause briefly before getting a page. This can be useful when debugging.
      * </ul>
      */
     public static void main(String args[]) {
