@@ -21,7 +21,7 @@ public class PageRankSpider extends Spider {
     /**
      * A graph that represents the crawl before doing PageRank
      */
-    Graph crawlGraph = new Graph();
+    PageRankGraph crawlGraph = new PageRankGraph();
 
     /**
      * Checks command line arguments and performs the crawl.
@@ -56,7 +56,7 @@ public class PageRankSpider extends Spider {
                 + MoreString.padWithZeros(count, (int) Math.floor(MoreMath.log(maxCount, 10)) + 1);
 
         // Get the Node associated with the current page
-        Node node = crawlGraph.getNode(page.link.getURL().toString());
+        PageRankNode node = crawlGraph.getNode(page.link.getURL().toString());
         node.pageNumber = pageNumber + ".html";
         node.isIndexed = true;
 
@@ -89,7 +89,7 @@ public class PageRankSpider extends Spider {
         for (int i = 0; i < iterations; i++) {
             // For every indexed document
             crawlGraph.resetIterator();
-            Node node = crawlGraph.nextNode();
+            PageRankNode node = crawlGraph.nextNode();
             while (node != null) {
                 // Compute the PageRank for the current iteration and store it
                 newRank.put(node.pageNumber, getNewPageRank(node, rank, alpha, rankSource));
@@ -119,7 +119,7 @@ public class PageRankSpider extends Spider {
     protected void printPageRank(HashMap<String, Double> rank) {
         System.out.println("\nPage Rank:");
 
-        for (Node n : crawlGraph.nodeArray()) {
+        for (PageRankNode n : crawlGraph.nodeArray()) {
             System.out.println("PR(" + n.name + "):" + rank.get(n.pageNumber));
         }
     }
@@ -153,7 +153,7 @@ public class PageRankSpider extends Spider {
             HashMap<String, Double> newRank) {
         // Iterate every indexed document
         crawlGraph.resetIterator();
-        Node n = crawlGraph.nextNode();
+        PageRankNode n = crawlGraph.nextNode();
         while (n != null) {
             // Initialize the PageRank to 1/|S| where S is the set of indexed docuemnts
             rank.put(n.pageNumber, 1.0 / count);
@@ -192,16 +192,16 @@ public class PageRankSpider extends Spider {
      * @param rank a HashMap that maps a node to its PageRank
      * @return the sum of the PageRanks of the nodes incident to node
      */
-    protected double getNewPageRank(Node node, HashMap<String, Double> rank, double alpha,
+    protected double getNewPageRank(PageRankNode node, HashMap<String, Double> rank, double alpha,
             double rankSource) {
         double sumPageRank = 0.0;
 
         // Get the list of nodes that are incident to node
-        List<Node> incomingNodes = node.getEdgesIn();
+        List<PageRankNode> incomingNodes = node.getEdgesIn();
 
         // Calculate ΣR(p)/N_p where p is a node incidient to node, N is the number of
         // outlinks from p, and R(p) is the PageRank of p
-        for (Node n : incomingNodes) {
+        for (PageRankNode n : incomingNodes) {
             sumPageRank += rank.get(n.pageNumber) / (n.getEdgesOut().size());
         }
 
@@ -212,21 +212,21 @@ public class PageRankSpider extends Spider {
     /**
      * Creates a new Graph which only contains indexed Node(s).
      */
-    protected Graph cleanCrawlGraph() {
-        Graph cleanedGraph = new Graph();
+    protected PageRankGraph cleanCrawlGraph() {
+        PageRankGraph cleanedGraph = new PageRankGraph();
 
         // Build a new graph
         crawlGraph.resetIterator();
-        Node node = crawlGraph.nextNode();
+        PageRankNode node = crawlGraph.nextNode();
         while (node != null) {
             if (node.isIndexed) {
                 // Get the node with matching name from new Graph
-                Node cleanedNode = cleanedGraph.getNode(node.name);
+                PageRankNode cleanedNode = cleanedGraph.getNode(node.name);
                 cleanedNode.pageNumber = node.pageNumber;
                 cleanedNode.isIndexed = true;
 
                 // Copy edges from indexed nodes and remove duplicate edges
-                for (Node n : node.edgesOut) {
+                for (PageRankNode n : node.edgesOut) {
                     if (n.isIndexed
                             && !cleanedNode.edgesOut.contains(cleanedGraph.getNode(n.name))) {
                         cleanedNode.addEdge(cleanedGraph.getNode(n.name));
